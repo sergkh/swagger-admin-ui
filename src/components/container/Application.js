@@ -1,22 +1,28 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Page from "./Page";
 import CategoryNavBlock from "./CategoryNavBlock";
 import Header from "../presentational/Header";
+import { ApiCategory, ApiModel } from "../../models/ApiModel";
 
 const Navigation = ({categories}) => { 
     
-    const catElements = categories.map (c => (
-        <CategoryNavBlock key={c.id()} category={c} />
-    ));
+  const catElements = categories.map (c => (
+    <CategoryNavBlock key={c.id()} category={c} />
+  ));
 
-    return (
-    <nav className="col-md-2 d-none d-md-block bg-light sidebar">
-      <div className="sidebar-sticky">
-        {catElements}
-      </div>
-    </nav>);
+  return (
+  <nav className="col-md-2 d-none d-md-block bg-light sidebar">
+    <div className="sidebar-sticky">
+      {catElements}
+    </div>
+  </nav>);
 }
+
+Navigation.propTypes = {
+  categories: PropTypes.arrayOf(PropTypes.instanceOf(ApiCategory)).isRequired
+};
 
 class Application extends Component {
 
@@ -53,6 +59,10 @@ class Application extends Component {
         </Router>);
     }
 }
+
+Application.propTypes = {
+  api: PropTypes.instanceOf(ApiModel).isRequired
+};
 
 export { Navigation };
 export default Application;

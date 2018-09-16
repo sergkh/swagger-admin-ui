@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import {ApiCategory} from "../../models/ApiModel";
 
 class CategoryNavBlock extends Component {
 
@@ -52,5 +54,9 @@ class CategoryNavBlock extends Component {
     </div>);
   }
 }
+
+CategoryNavBlock.propTypes = {
+  category: PropTypes.instanceOf(ApiCategory).isRequired
+};
 
 export default CategoryNavBlock;

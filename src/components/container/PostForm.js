@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
 import Input from "../presentational/Input";
-import {ApiMethod} from "../../models/ApiModel"
+import { ApiMethod } from "../../models/ApiModel";
 
-class FormBuilder extends Component {
+class PostForm extends Component {
 
   constructor(props) {
     super(props);
@@ -62,4 +62,8 @@ class FormBuilder extends Component {
   }
 }
 
-export default FormBuilder;
+PostForm.propTypes = {
+  method: PropTypes.instanceOf(ApiMethod).isRequired
+};
+
+export default PostForm;

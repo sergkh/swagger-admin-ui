@@ -97,8 +97,6 @@ function buildCategories(api, swagger) {
     return acc;
   }, {});
 
-  console.log(groupedByTag);
-
   const categories = Object.entries(groupedByTag).map ( entry => {
     const [tag, methods] = entry;
     const tagInfo = tags.find(t => t.name == tag);
