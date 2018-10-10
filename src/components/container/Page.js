@@ -25,6 +25,8 @@ class Page extends Component {
     const method = this.props.method;
     const form = formByMethod(method);
 
+    console.log(method);
+
     return (
     <div>
         <h1 className="h2">{method.title()}</h1>

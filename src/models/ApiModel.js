@@ -5,6 +5,28 @@ function urlSafe(str) {
   return encodeURI(str.toLowerCase().replace(/\s+/g,"-"));
 }
 
+class ApiParam {
+  constructor(param) {
+    this.param = param;
+  }
+
+  name() {
+    return this.param.name;
+  }
+
+  required() {
+    return this.param.required;
+  }
+
+  schemaType() {
+    return this.param.schema.type;
+  }
+
+  schema() {
+    return this.param.schema;
+  }
+}
+
 class SwaggerApiMethod extends ApiMethod {
   constructor(method, baseUrl, path, descriptor) {
     super();
@@ -15,7 +37,7 @@ class SwaggerApiMethod extends ApiMethod {
   }
 
   id() {
-    return urlSafe(this.method + this.path.replace(/\//g, '-').replace(/\{/g, '(').replace(/\}/g, ')'));
+    return this.descriptor.operationId || urlSafe(this.method + this.path.replace(/\//g, '-').replace(/\{/g, '(').replace(/\}/g, ')'));
   }
 
   title() {
@@ -36,7 +58,7 @@ class SwaggerApiMethod extends ApiMethod {
   }
 
   params() {
-    return this.descriptor.parameters;
+    return this.descriptor.parameters.map(p => new ApiParam(p));
   }
 }
 
@@ -65,6 +87,65 @@ function swaggerBasePath(swagger) {
   return (swagger.schemes[0] + "://" + swagger.host + swagger.basePath).replace(/\/$/, '');
 }
 
+// ONly partial implementition of https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03
+function findRef(obj, jsonRef) {
+  const path = jsonRef.split('/');
+
+  const ref = path.reduce((current, p) => {
+    if (p == '#') return obj;
+    return current[p];
+  }, obj);
+  
+  return ref;
+}
+
+/** Resolves method definition references using global definitions object */
+function resolveDefinitions(schema, swagger) {
+  if (schema['$ref']) {
+    return resolveDefinitions(findRef(swagger, schema['$ref']), swagger);
+  } else {
+    let result = {};
+    Object.entries(schema).forEach(entry => {
+      const [id, obj] = entry;
+      if (Array.isArray(obj) || (typeof obj != 'object')) {
+        result[id] = obj;        
+      } else {
+        result[id] = resolveDefinitions(obj, swagger);
+      }
+    });
+
+    return result;
+  }
+}
+
+/** Resolves method definition references using global definitions object */
+function resolveMethodDefinitions(methodDescriptor, swagger) {
+  let update = {};
+  
+  if (methodDescriptor.parameters) {
+    update.parameters = methodDescriptor.parameters.map(p => {
+      if (p.schema) return Object.assign(p, { schema: resolveDefinitions(p.schema, swagger) })
+      return p;
+    })
+  }
+
+  if (methodDescriptor.responses) {
+    let responses = {};
+    Object.entries(methodDescriptor.responses).forEach( entry => {
+      const [code, descriptor] = entry;
+      if (descriptor.schema) {
+        responses[code] = resolveDefinitions(descriptor.schema, swagger);
+      } else {
+        responses[code] = descriptor;
+      }
+    })
+
+    update.responses = responses;
+  }
+
+  return Object.assign(methodDescriptor, update);
+}
+
 /** Returns Swagger API methods list */
 function listMethods(swagger) {
   // remove trailing slash
@@ -74,7 +155,7 @@ function listMethods(swagger) {
       const [path, methods] = entry;    
       return Object.entries(methods).map( methodEntry => {
         const [method, descriptor] = methodEntry;
-        return new SwaggerApiMethod(method, base, path, descriptor);
+        return new SwaggerApiMethod(method, base, path, resolveMethodDefinitions(descriptor, swagger));
       }); 
     });
 
@@ -128,5 +209,5 @@ class SwaggerApi extends ApiModel {
   }
 };
 
-export { ApiModel, ApiMethod, ApiCategory };
+export { ApiModel, ApiMethod, ApiCategory, ApiParam };
 export default SwaggerApi;

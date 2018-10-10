@@ -3,9 +3,6 @@ import { ApiModel } from "../../models/ApiModel";
 import PropTypes from "prop-types";
 
 const Header = ({ api }) => {
-
-  console.log(api.title());
-
   return (
     <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a className="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{api.title()}</a>

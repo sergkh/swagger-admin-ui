@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Input from "../presentational/Input";
+import ObjectInput from "../presentational/ObjectInput";
 import { ApiMethod } from "../../models/ApiModel";
 
 class PostForm extends Component {
@@ -35,19 +36,30 @@ class PostForm extends Component {
     console.log(method.params());
 
     const inputs = method.params().map((param, index) => {
-      const name = param.name;
-      const required = param.required ? true : false;
+      const name = param.name();
+      const required = param.required();
       const value = this.state[name];
+      const schema = param.schemaType();
 
-      return (<Input 
-                key={index} 
-                label={name}
-                text={param.description}
-                id={name} 
-                value={value} 
-                handleChange={this.handleChange}
-                required={required}
-              />);
+      if (schema == 'object') {
+        return (<ObjectInput 
+                  key={index}
+                  param={param}
+                  handleChange={this.handleChange}
+                  required={required}
+                />);   
+      } else {
+
+        return (<Input 
+                  key={index} 
+                  label={name}
+                  text={param.description}
+                  id={name} 
+                  value={value} 
+                  handleChange={this.handleChange}
+                  required={required}
+                />);
+      }
     });
 
     return (
