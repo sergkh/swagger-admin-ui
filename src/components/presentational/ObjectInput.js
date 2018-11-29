@@ -5,27 +5,30 @@ import Input from "./Input";
 
 const ObjectInput = ({ param, handleChange, required }) => {
   const schema = param.schema();
-  console.log(schema);
+  
+  console.log(param);
 
   const requiredFields = schema.required || [];
 
   const inputs = Object.entries(schema.properties).map(entry => {
     const [id, config] = entry;
     const value = config.example || "nothing";
-    
-    <Input 
-          key={param.name() + id}
+    const description = config.description || id;
+    const inputId = param.name() + "_" + id;
+
+    return (<Input 
+          key={inputId}
           label={name}
-          text={param.description}
-          id={param.name() + id} 
+          text={description}
+          id={inputId}
           value={value} 
           handleChange={handleChange}
-          required={required}
-        />
+          required={requiredFields.indexOf(id) >= 0}
+        />);
   });
 
   return (<div className="form-group">
-      Object input
+    {inputs}
   </div>);
 
 }
