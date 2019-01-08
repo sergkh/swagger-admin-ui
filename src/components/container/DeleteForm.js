@@ -9,11 +9,7 @@ class DeleteForm extends Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-
-    const names = this.props.method.params().map(param => param.name)
-    var form = {}
-    names.forEach(v => form[v] = '');
-    this.state = form;
+    this.state = this.props.method.formObject();
   }
   
   handleChange(evt) {
@@ -35,14 +31,15 @@ class DeleteForm extends Component {
     console.log(method.params());
 
     const inputs = method.params().map((param, index) => {
-      const name = param.name;
-      const required = param.required ? true : false;
+      const name = param.name();
+      const required = param.required();
       const value = this.state[name];
+      const description = param.description();
 
       return (<Input 
                 key={index} 
                 label={name}
-                text={param.description}
+                text={description}
                 id={name} 
                 value={value} 
                 handleChange={this.handleChange}

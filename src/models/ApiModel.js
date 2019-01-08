@@ -14,16 +14,24 @@ class ApiParam {
     return this.param.name;
   }
 
+  defaultValue() {
+    return '';
+  }
+
   required() {
     return this.param.required;
   }
 
+  description() {
+    return this.param.description;
+  }
+
   schemaType() {
-    return this.param.schema.type;
+    return this.schema().type;
   }
 
   schema() {
-    return this.param.schema;
+    return this.param.schema || {};
   }
 }
 
@@ -49,7 +57,7 @@ class SwaggerApiMethod extends ApiMethod {
   }
 
   description() {
-    return this.descriptor.description;
+    return this.descriptor.description || '';
   }
 
   submit(fields) {
@@ -59,6 +67,13 @@ class SwaggerApiMethod extends ApiMethod {
 
   params() {
     return this.descriptor.parameters.map(p => new ApiParam(p));
+  }
+
+  formObject() {
+    const paramsList = this.params();
+    var form = {}
+    paramsList.forEach(p => form[p.name()] = p.defaultValue());
+    return form;
   }
 }
 

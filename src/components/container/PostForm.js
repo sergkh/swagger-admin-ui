@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Input from "../presentational/Input";
-import ObjectInput from "../presentational/ObjectInput";
+import SmartInput from "../presentational/SmartInput";
 import { ApiMethod } from "../../models/ApiModel";
 
 class PostForm extends Component {
@@ -10,11 +9,7 @@ class PostForm extends Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-
-    const names = this.props.method.params().map(param => param.name)
-    var form = {}
-    names.forEach(v => form[v] = '');
-    this.state = form;
+    this.state = this.props.method.formObject();
   }
   
   handleChange(evt) {
@@ -36,30 +31,16 @@ class PostForm extends Component {
     console.log(method.params());
 
     const inputs = method.params().map((param, index) => {
-      const name = param.name();
-      const required = param.required();
-      const value = this.state[name];
-      const schema = param.schemaType();
+      const id = index.toString();    
+      const value = this.state[param.name()];
 
-      if (schema == 'object') {
-        return (<ObjectInput 
-                  key={index}
-                  param={param}
-                  handleChange={this.handleChange}
-                  required={required}
-                />);   
-      } else {
-
-        return (<Input 
-                  key={index} 
-                  label={name}
-                  text={param.description}
-                  id={name} 
-                  value={value} 
-                  handleChange={this.handleChange}
-                  required={required}
-                />);
-      }
+      return (<SmartInput 
+          key={id}
+          id={id} 
+          param={param}
+          value={value}
+          handleChange={this.handleChange} 
+        />);
     });
 
     return (
