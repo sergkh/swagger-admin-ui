@@ -32,14 +32,14 @@ class Application extends Component {
 
     render() {
         const api = this.props.api;
-        const categories = api.categories;
+        const categories = api.categories();
 
         const PageComponent = (p) => {
             return (route) => <Page method={p} route={route} />
         };
 
         const routes = categories.map (cat => 
-            cat.methods.map(method => 
+            cat.methods().map(method => 
                 (<Route key={cat.id() + method.id()} path={ cat.url() + method.url() } component={PageComponent(method)} />)
             )
         ).reduce((acc, val) => acc.concat(val), []); // .flat();

@@ -53,7 +53,7 @@ class GetForm extends Component {
         <p title={method.description()}>{method.title()}</p>      
         <form id={method.id()} onSubmit={this.handleSubmit}>
           {inputs}    
-          <button type="submit">Submit</button>      
+          <button className="btn btn-primary" type="submit">Refresh</button>      
         </form>
       </div>
     );

@@ -15,7 +15,7 @@ class ApiParam {
   }
 
   defaultValue() {
-    return '';
+    return this.param.example || '';
   }
 
   required() {
@@ -27,11 +27,31 @@ class ApiParam {
   }
 
   schemaType() {
-    return this.schema().type;
+    if (this.param.schema) {
+      return this.param.schema.type;
+    } else {
+      return this.param.type;
+    }
   }
 
   schema() {
     return this.param.schema || {};
+  }
+
+  subParams() {
+    const requiredFields = this.schema().required || [];
+    if(this.schemaType() == 'object') {
+      const propsObj = this.schema().properties || {};
+      return Object.entries(propsObj).map(entry => {
+        const [name, param] = entry;
+        param.name = name;
+        param.required = requiredFields.indexOf(name) >= 0;
+        return new ApiParam(param);
+      }
+      );
+    } else {
+      return [];
+    }
   }
 }
 
@@ -80,21 +100,25 @@ class SwaggerApiMethod extends ApiMethod {
 class ApiCategory {
   constructor(api, name, description, methods) {
     this.api = api;
-    this.name = name;
-    this.description = description;
-    this.methods = methods;
+    this._name = name;
+    this._description = description;
+    this._methods = methods;
   }
 
   id() {
-    return this.name;
+    return this._name;
   }
 
   title() {
-    return this.name.charAt(0).toUpperCase() + this.name.substr(1);
+    return this._name.charAt(0).toUpperCase() + this._name.substr(1);
   }
 
   url() {
-    return "/" + this.name; // TODO: make URL safe
+    return "/" + this._name; // TODO: make URL safe
+  }
+
+  methods() {
+    return this._methods;
   }
 }
 
@@ -211,16 +235,24 @@ class SwaggerApi extends ApiModel {
 
   constructor(swagger) {
     super();
-    this.swagger = swagger;
-    this.categories = buildCategories(this, swagger);
+    this._swagger = swagger;
+    this._categories = buildCategories(this, swagger);
   }
 
   title() {
-    return this.swagger.info.title || "Swagger API";
+    return this._swagger.info.title || "Swagger API";
   }
 
   version() {
-    return this.swagger.info.version || "";
+    return this._swagger.info.version || "";
+  }
+
+  categories() {
+    return this._categories;
+  }
+
+  categoryById(id) {
+    return this._categories.find(e => e.id() == id);
   }
 };
 

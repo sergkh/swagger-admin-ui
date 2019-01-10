@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 const Input = ({ label, text, id, value, handleChange, required }) => 
   (<div className="form-group">
-    <label htmlFor={label}>{text}</label>
+    <label className={required?'required-field':''} htmlFor={label}>{text}</label>
     <input
       type="text"
       className="form-control"

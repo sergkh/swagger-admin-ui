@@ -14,10 +14,50 @@ class SmartInput extends Component {
     const param = this.props.param;
     const name = param.name();
     const required = param.required();
-    const schema = param.schemaType();
+    const schemaType = param.schemaType();
     const description = param.description();
 
-    if (schema == 'object') {
+    console.log("Param", param);
+
+    if (schemaType == 'object') {
+      const subParams = param.subParams();
+      
+      const inputs = subParams.map(param => {
+        const id = param.name();
+        const value = param.defaultValue();
+                  
+        return (<SmartInput 
+            key={id}
+            id={id} 
+            param={param}
+            value={value}
+            handleChange={this.handleChange} 
+        />);
+      });
+
+      return (<div className="form-group">{inputs}</div>);
+
+/*      
+      const inputs = subParams.map(entry => {
+        const value = entry.example || "";
+        const description = entry.description || id;
+        const inputId = param.name() + "_" + id;
+    
+        return (<Input 
+              key={inputId}
+              label={name}
+              text={description}
+              id={inputId}
+              value={value} 
+              handleChange={handleChange}
+              required={requiredFields.indexOf(id) >= 0}
+            />);
+      });
+    
+      return (<div className="form-group">
+        {inputs}
+      </div>);
+*/
       return (<ObjectInput 
                 key={this.props.id}
                 param={param}

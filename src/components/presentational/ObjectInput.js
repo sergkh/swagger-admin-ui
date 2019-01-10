@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { ApiParam } from "../../models/ApiModel";
+import SmartInput from "./SmartInput";
 import Input from "./Input";
 
 const ObjectInput = ({ param, handleChange, required }) => {
@@ -12,7 +13,7 @@ const ObjectInput = ({ param, handleChange, required }) => {
 
   const inputs = Object.entries(schema.properties).map(entry => {
     const [id, config] = entry;
-    const value = config.example || "nothing";
+    const value = config.example || "";
     const description = config.description || id;
     const inputId = param.name() + "_" + id;
 
@@ -27,9 +28,7 @@ const ObjectInput = ({ param, handleChange, required }) => {
         />);
   });
 
-  return (<div className="form-group">
-    {inputs}
-  </div>);
+  return (<div className="form-group">{inputs}</div>);
 
 }
 
